@@ -1,19 +1,21 @@
 # Config for: python -m hepsetreg.runs.run_reconstruction --train|--predict --config configs/run_reconstruction.yaml
 
+encoder: transformer  # transformer, lgatr, lgatr_slim
+
 features:
   global: [global_met_met, global_met_phi]
   jet: [jet_pt, jet_eta, jet_phi, jet_e, jet_bTag]
   lepton: [pt, eta, phi, e, charge, is_electron]
 
-# Truth roles as [source, label, ...], matched to the integer labels in
-# targets.jet_labels and targets.el_labels/mu_labels (0 = other object).
-# Several labels in one entry are exchangeable, and a name reuses a target:
-#   W_had: [[jet, 3, 4]]
-#   top_had: [[jet, 1], W_had]
-#   top_lep: [[jet, 2], [lepton, 1]]
+# Integer truth roles from targets.jet_labels / el_labels / mu_labels.
 assignment:
   top: [[jet, 1]]
   antitop: [[jet, 2]]
+
+# Each flow target has a targets.<name>_valid mask.
+flow_targets:
+  neutrino: [nu_px, nu_py, nu_pz, antinu_px, antinu_py, antinu_pz]
+# loss_weights: {assignment: 1.0, neutrino: 1.0}
 
 train:
   train_path: ttbar-2L_train.parquet
@@ -33,3 +35,5 @@ predict:
   batch_size: 4096
   accelerator: gpu
   output: ttbar-2L-reconstruction.parquet
+  n_steps: 50
+  n_samples: 8
